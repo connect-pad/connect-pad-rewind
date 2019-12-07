@@ -1,0 +1,24 @@
+{
+  "name": "connect-pad-rewind",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "frontend": "cd frontend && yarn start",
+    "backend": "cd backend && yarn start:dev",
+    "start": "concurrently \"yarn backend\" \"yarn frontend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/connect-pad/connect-pad-rewind.git"
+  },
+  "author": "maro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/connect-pad/connect-pad-rewind/issues"
+  },
+  "homepage": "https://github.com/connect-pad/connect-pad-rewind#readme",
+  "dependencies": {
+    "concurrently": "^4.1.2"
+  }
+}
