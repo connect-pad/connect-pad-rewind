@@ -18,101 +18,137 @@ const lottieOptions = {
 const Wrapper = styled.div`
   width: 100%;
   height: 100vh;
-  display: flex;
-  align-items: center;
+  display: block;
+  /* align-items: center;
   justify-content: center;
-  flex-direction: column;
+  flex-direction: column; */
 `;
 
+const Img = styled.img`
+  width: 100%;
+`;
 
-export default inject("socket")(
-  observer(props => {
-    const { socket } = props.socket;
-    const [isCountdown, setCountdown] = useState(true);
+export default inject("player")(
+  inject("socket")(
+    observer(props => {
+      const { socket } = props.socket;
+      const { player } = props;
+      const [isCountdown, setCountdown] = useState(true);
 
-    useEffect(() => {
-      window.navigator.vibrate([
-        200,
-        800,
-        200,
-        800,
-        200,
-        800,
-        200,
-        800,
-        200,
-        800,
-        200,
-        800
-      ]);
-    }, []);
+      useEffect(() => {
+        window.navigator.vibrate([
+          200,
+          800,
+          200,
+          800,
+          200,
+          800,
+          200,
+          800,
+          200,
+          800,
+          200,
+          800
+        ]);
+      }, []);
 
-    let dir = "";
-    let lastSentDir = "";
-    let lastSentStatus = "";
+      let dir = "";
+      let lastSentDir = "";
+      let lastSentStatus = "";
 
-    const handleMove = (event, data) => {
-      if (data.force >= 0.75) {
-        if (lastSentDir !== dir || lastSentStatus === "up") {
-          socket.emit("gamepad:keyDown", dir);
-          lastSentDir = dir;
-          lastSentStatus = "down";
-          window.navigator.vibrate(50);
+      const handleMove = (event, data) => {
+        if (data.force >= 0.75) {
+          if (lastSentDir !== dir || lastSentStatus === "up") {
+            socket.emit("gamepad:keyDown", dir);
+            lastSentDir = dir;
+            lastSentStatus = "down";
+            window.navigator.vibrate(50);
+          }
+        } else if (lastSentStatus !== "up") {
+          socket.emit("gamepad:keyUp", dir);
+          lastSentStatus = "up";
         }
-      } else if (lastSentStatus !== "up") {
-        socket.emit("gamepad:keyUp", dir);
+      };
+      const handleDir = (event, data) => {
+        console.log(event, data);
+        const dirXY = data.direction.x + data.direction.y;
+
+        switch (dirXY) {
+          case "leftup":
+            dir = "left";
+            break;
+
+          case "rightdown":
+            dir = "right";
+            break;
+
+          case "leftdown":
+            dir = "down";
+            break;
+
+          case "rightup":
+            dir = "up";
+            break;
+
+          default:
+            break;
+        }
+        // dir = data.direction.angle;
+      };
+      const handleEnd = () => {
+        socket.emit("gamepad:keyUp");
         lastSentStatus = "up";
-      }
-    };
-    const handleDir = (event, data) => {
-      console.log(event, data);
-      dir = data.direction.angle;
-    };
-    const handleEnd = () => {
-      socket.emit("gamepad:keyUp");
-      lastSentStatus = "up";
-    };
+      };
 
-    return (
-      <Wrapper>
-        {isCountdown && (
-          <>
-            <Lottie
-              options={lottieOptions}
-              width="100%"
-              height="240"
-              eventListeners={[
-                {
-                  eventName: "complete",
-                  callback: () => setCountdown(false)
-                }
-              ]}
-            />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-          </>
-        )}
-
-        <ReactNipple
-          options={{ mode: "static", position: { top: "50%", left: "50%" } }}
-          style={{
-            // outline: "1px dashed red",
-            width: "100%",
-            height: 500,
-            // backgroundColor: "#eee",
-            position: "absolute",
-            left: 0,
-            bottom: 0
-          }}
-          onMove={handleMove}
-          onDir={handleDir}
-          onEnd={handleEnd}
-        />
-      </Wrapper>
-    );
-  })
+      return (
+        <Wrapper style={{ borderTop: `12px solid ${player.color}` }}>
+          >
+          {isCountdown ? (
+            <>
+              <Lottie
+                options={lottieOptions}
+                width="100%"
+                height="240"
+                eventListeners={[
+                  {
+                    eventName: "complete",
+                    callback: () => setCountdown(false)
+                  }
+                ]}
+              />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+            </>
+          ) : (
+            <>
+              <Img src={player.characterImage} />
+              <ReactNipple
+                options={{
+                  mode: "static",
+                  position: { top: "50%", left: "50%" },
+                  color: player.color
+                }}
+                style={{
+                  // outline: "1px dashed red",
+                  width: "100%",
+                  height: 500,
+                  // backgroundColor: "#eee",
+                  position: "absolute",
+                  left: 0,
+                  bottom: 0
+                }}
+                onMove={handleMove}
+                onDir={handleDir}
+                onEnd={handleEnd}
+              />
+            </>
+          )}
+        </Wrapper>
+      );
+    })
+  )
 );

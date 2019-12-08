@@ -2,11 +2,13 @@
 html {
   scroll-behavior: smooth;
   height: 100%;
+  max-height: 100vh;
 }
 
 body {
   font-size: 16px;
   height: 100%;
+  max-height: 100vh;
   background-color: #000000;
 }
 * {
@@ -24,27 +26,3 @@ body {
 .slick-current {
   transform: scale(1.5);
 } */
-
-.slick-arrow,
-.slick-arrow:hover,
-.slick-arrow:active {
-  width: 40px;
-  height: 180px;
-  background-color: #ffffff;
-  opacity: 0.5;
-  position: absolute;
-  /* transform: unset; */
-  z-index: 300;
-}
-
-.slick-arrow::before {
-  color: #000000;
-}
-.slick-prev {
-  left: 0;
-  top: 50%;
-}
-.slick-next {
-  right: 0;
-  top: 50%;
-}
