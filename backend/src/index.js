@@ -1,8 +1,11 @@
 require("dotenv").config();
-// const app = require("https").createServer({});
-const io = require("socket.io")(process.env.PORT);
+const app = require("http").createServer({});
+const io = require("socket.io")(app);
 
 const { log } = console;
+
+app.listen(process.env.PORT);
+
 log(`listening on *:${process.env.PORT}`);
 
 const settings = {
@@ -29,6 +32,7 @@ io.on("connection", socket => {
   log(`[${socket.id}] Device connected`);
 
   socket.on("setDevice", deviceType => {
+    console.log(deviceType);
     switch (deviceType) {
       case "screen":
         log(`[${socket.id}] Try to set device 'Screen'...`);
@@ -90,16 +94,24 @@ io.on("connection", socket => {
         gamepads.players.push(socket);
         gamepads.waiters.splice(gamepads.waiters.indexOf(socket), 1);
         socket.emit("gamepad:changeScene", "waitForPlayers");
-        settings.devices.screen.emit("screen:newPlayer", { id: socket.id });
+        settings.devices.screen &&
+          settings.devices.screen.emit("screen:newPlayer", { id: socket.id });
+
+        settings.devices.screen &&
+          settings.devices.screen.emit("screen:changeCharacter", {
+            id: socket.id,
+            characterIndex: 0
+          });
         log(`[${socket.id}] joins`);
       }
     }
     log(gamepads.players.length);
     if (gamepads.players.length >= process.env.MAX_PLAYERS_PER_GAME) {
       settings.scene = "selectCharacter";
-      settings.devices.screen.emit("screen:gameReady");
-      gamepads.players.forEach(s => {
-        s.emit("gamepad:gameReady");
+      settings.devices.screen &&
+        settings.devices.screen.emit("screen:gameReady");
+      gamepads.players.forEach((s, index) => {
+        s.emit("gamepad:gameReady", index);
       });
       gamepads.waiters.forEach(s => {
         s.emit("gamepad:recruitEnd");
@@ -111,17 +123,19 @@ io.on("connection", socket => {
   });
 
   socket.on("gamepad:changeCharacter", characterIndex => {
-    settings.devices.screen.emit("screen:changeCharacter", {
-      id: socket.id,
-      characterIndex
-    });
+    settings.devices.screen &&
+      settings.devices.screen.emit("screen:changeCharacter", {
+        id: socket.id,
+        characterIndex
+      });
   });
 
   socket.on("gamepad:gameReady", status => {
-    settings.devices.screen.emit("screen:playerReady", {
-      id: socket.id,
-      status: status ? true : false
-    });
+    settings.devices.screen &&
+      settings.devices.screen.emit("screen:playerReady", {
+        id: socket.id,
+        status: status ? true : false
+      });
   });
 
   socket.on("screen:gameStart", () => {
@@ -133,18 +147,20 @@ io.on("connection", socket => {
   });
 
   socket.on("gamepad:keyDown", key => {
-    settings.devices.screen.emit("screen:keyDown", {
-      id: socket.id,
-      key
-    });
+    settings.devices.screen &&
+      settings.devices.screen.emit("screen:keyDown", {
+        id: socket.id,
+        key
+      });
     log(`[${socket.id}] key down: ${key}`);
   });
 
   socket.on("gamepad:keyUp", key => {
-    settings.devices.screen.emit("screen:keyUp", {
-      id: socket.id,
-      key
-    });
+    settings.devices.screen &&
+      settings.devices.screen.emit("screen:keyUp", {
+        id: socket.id,
+        key
+      });
     log(`[${socket.id}] key up: ${key}`);
   });
 
@@ -166,13 +182,59 @@ io.on("connection", socket => {
     log("Game is over!");
   });
 
+  socket.on("screen:playSound", data => {
+    let soundName = null;
+    let id = null;
+    if (typeof data === "object") {
+      if (data.soundName) {
+        soundName = data.soundName;
+      }
+      if (data.id) {
+        id = data.id;
+      }
+    } else {
+      soundName = data;
+    }
+
+    if (id) {
+      io.sockets.sockets[id].emit("gamepad:playSound", soundName);
+    } else {
+      settings.devices.gamepads.players.forEach(s => {
+        s.emit("gameend:playSound", soundName);
+      });
+    }
+  });
+
+  socket.on("screen:vibrate", data => {
+    let pattern = null;
+    let id = null;
+
+    if (typeof data === "object") {
+      if (data.pattern) {
+        pattern = data.pattern;
+      }
+      if (data.id) {
+        id = data.id;
+      }
+    } else {
+      pattern = data;
+    }
+
+    if (id) {
+      io.sockets.sockets[id].emit("gamepad:vibrate", pattern);
+    } else {
+      settings.devices.gamepads.players.forEach(s => {
+        s.emit("gameend:vibrate", pattern);
+      });
+    }
+  });
+
   socket.on("disconnect", reason => {
     log(`[${socket.id}] Disconnected: ${reason}`);
-    settings.devices.screen.emit("screen:playerOut", { id: socket.id });
+    settings.devices.screen &&
+      settings.devices.screen.emit("screen:playerOut", { id: socket.id });
     clearDisconnectedSocket();
   });
 
   // socket.join("screen");
 });
-
-require("./screen");

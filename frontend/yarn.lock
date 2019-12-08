@@ -9394,6 +9394,11 @@ sockjs@0.3.19:
     faye-websocket "^0.10.0"
     uuid "^3.0.1"
 
+sound-fx@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/sound-fx/-/sound-fx-2.1.0.tgz#a190a5f5c1a1c57f9977572e5bee01d84983645a"
+  integrity sha1-oZCl9cGhxX+Zd1cuW+4B2EmDZFo=
+
 source-list-map@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/source-list-map/-/source-list-map-2.0.1.tgz#3993bd873bfc48479cca9ea3a547835c7c154b34"

@@ -5,9 +5,9 @@ import socketIOClient from "socket.io-client";
 export class SocketStore {
   @observable socket = socketIOClient("http://192.168.43.127:4747");
 
-  constructor() {
-    // this.socket.on("gamepad:")
-  }
+  // constructor() {
+  // this.socket.on("gamepad:")
+  // }
 }
 
 export default SocketStore;

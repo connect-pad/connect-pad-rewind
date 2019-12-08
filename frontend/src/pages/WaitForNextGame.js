@@ -20,26 +20,30 @@ const Text = styled.div`
   text-align: center;
 `;
 
-export default inject("socket")(
-  observer(({ socket }) => {
-    // useEffect(() => {
-    //   socket.socket.emit("setDevice", "player");
-    // }, []);
+export default inject("sfx")(
+  inject("socket")(
+    observer(({ sfx }) => {
+      // useEffect(() => {
+      //   socket.socket.emit("setDevice", "player");
+      // }, []);
 
-    const lottieOptions = {
-      loop: true,
-      autoplay: true,
-      animationData: animationData.default,
-      rendererSettings: {
-        preserveAspectRatio: "xMidYMid slice"
-      }
-    };
+      const lottieOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData.default,
+        rendererSettings: {
+          preserveAspectRatio: "xMidYMid slice"
+        }
+      };
 
-    return (
-      <Wrapper>
-        <Lottie options={lottieOptions} width="100%" height="320" />
-        <Text>다음 게임을 기다리고 있습니다.</Text>
-      </Wrapper>
-    );
-  })
+      useEffect(() => {}, []);
+
+      return (
+        <Wrapper>
+          <Lottie options={lottieOptions} width="100%" height="320" />
+          <Text>다음 게임을 기다리고 있습니다.</Text>
+        </Wrapper>
+      );
+    })
+  )
 );

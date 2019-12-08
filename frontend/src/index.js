@@ -5,6 +5,8 @@ import { Provider } from "mobx-react";
 import { RouterStore, syncHistoryWithStore } from "mobx-react-router";
 import { Router } from "react-router";
 import { SocketStore } from "stores/socket";
+import { PlayerStore } from "stores/player";
+import { SFXStore } from "stores/sfx";
 
 import "./index.css";
 import App from "./App";
@@ -15,10 +17,17 @@ const routingStore = new RouterStore();
 
 const socketStore = new SocketStore();
 
+const playerStore = new PlayerStore();
+
+const sfxStore = new SFXStore();
+
 const stores = {
   // Key can be whatever you want
   routing: routingStore,
-  socket: socketStore
+  socket: socketStore,
+  player: playerStore,
+  sfx: sfxStore
+
   // ...other stores
 };
 
