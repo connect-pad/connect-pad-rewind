@@ -4,7 +4,7 @@
   "homepage": "https://homepage.com/",
   "private": true,
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "comma-number": "^2.0.1",
     "eslint-config-airbnb": "^17.1.1",
     "eslint-config-prettier": "^6.4.0",
